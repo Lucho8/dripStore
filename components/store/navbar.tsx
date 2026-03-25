@@ -1,0 +1,69 @@
+import Link from "next/link";
+import { auth } from "@/auth";
+import { ShoppingBag, User } from "lucide-react";
+
+export async function Navbar() {
+  const session = await auth();
+
+  return (
+    <header className="border-b border-border bg-background sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold tracking-tight">
+          DRIP STORE
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-8">
+          <Link
+            href="/products"
+            className="text-sm text-muted-foreground hover:text-foreground transition"
+          >
+            Productos
+          </Link>
+          <Link
+            href="/products?category=remeras"
+            className="text-sm text-muted-foreground hover:text-foreground transition"
+          >
+            Remeras
+          </Link>
+          <Link
+            href="/products?category=pantalones"
+            className="text-sm text-muted-foreground hover:text-foreground transition"
+          >
+            Pantalones
+          </Link>
+          <Link
+            href="/products?category=accesorios"
+            className="text-sm text-muted-foreground hover:text-foreground transition"
+          >
+            Accesorios
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-4">
+          <Link href="/cart" className="relative">
+            <ShoppingBag size={22} className="text-foreground" />
+          </Link>
+
+          {session ? (
+            <Link
+              href="/account"
+              className="flex items-center gap-2 text-sm font-medium"
+            >
+              <User size={22} />
+              <span className="hidden md:block">
+                {session.user?.name?.split(" ")[0]}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm font-medium px-4 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+            >
+              Ingresar
+            </Link>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
