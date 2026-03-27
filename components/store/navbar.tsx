@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { ShoppingBag, User } from "lucide-react";
+import { CartCount } from "@/components/store/cart-count";
 
 export async function Navbar() {
   const session = await auth();
@@ -40,9 +41,7 @@ export async function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/cart" className="relative">
-            <ShoppingBag size={22} className="text-foreground" />
-          </Link>
+          <CartCount />
 
           {session ? (
             <Link
