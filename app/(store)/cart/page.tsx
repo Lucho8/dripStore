@@ -4,9 +4,25 @@ import { useCartStore } from "@/lib/store/cart.store";
 import { Trash2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { createCheckoutSession } from "@/lib/actions/checkout.actions";
+import { useState } from "react";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCartStore();
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  async function handleCheckout() {
+    setLoadingCheckout(true);
+    await createCheckoutSession(
+      items.map((item) => ({
+        name: `${item.name} — ${item.color} / ${item.size}`,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+      })),
+    );
+    setLoadingCheckout(false);
+  }
 
   if (items.length === 0) {
     return (
@@ -42,7 +58,7 @@ export default function CartPage() {
               {/* Imagen */}
               <div
                 className="relative rounded-xl overflow-hidden bg-neutral-100 shrink-0"
-                style={{ width: '80px', height: '112px' }}
+                style={{ width: "80px", height: "112px" }}
               >
                 {item.image ? (
                   <Image
@@ -144,13 +160,14 @@ export default function CartPage() {
               </div>
             </div>
 
-            <Link
-              href="/checkout"
-              style={{ padding: "12px 30%" }}
-              className="mx-auto rounded-xl bg-primary text-primary-foreground text-sm font-medium text-center hover:opacity-90 transition"
+            <button
+              onClick={handleCheckout}
+              disabled={loadingCheckout}
+              style={{ padding: "12px 48px" }}
+              className="mx-auto rounded-xl bg-primary text-primary-foreground text-sm font-medium text-center hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Ir al checkout
-            </Link>
+              {loadingCheckout ? "Redirigiendo..." : "Ir al checkout"}
+            </button>
             <Link
               href="/products"
               className="text-center text-sm text-muted-foreground hover:text-foreground transition"
