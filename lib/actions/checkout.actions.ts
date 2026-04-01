@@ -9,6 +9,7 @@ interface CheckoutItem {
   price: number;
   quantity: number;
   image: string;
+  variantId: string;
 }
 
 export async function createCheckoutSession(items: CheckoutItem[]) {
@@ -25,7 +26,7 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
         name: item.name,
         images: item.image ? [item.image] : [],
       },
-      unit_amount: Math.round((item.price / 1000) * 100),
+      unit_amount: Math.round(item.price * 100),
     },
     quantity: item.quantity,
   }));
@@ -38,6 +39,13 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
     cancel_url: `${process.env.NEXTAUTH_URL}/cart`,
     metadata: {
       userId: session.user.id,
+      items: JSON.stringify(
+        items.map((item) => ({
+          variantId: item.variantId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      ),
     },
   });
 
