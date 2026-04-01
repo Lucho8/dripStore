@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { ShoppingBag, User } from "lucide-react";
 import { CartCount } from "@/components/store/cart-count";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 export async function Navbar() {
   const session = await auth();
@@ -44,15 +45,18 @@ export async function Navbar() {
           <CartCount />
 
           {session ? (
-            <Link
-              href="/account"
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <User size={22} />
-              <span className="hidden md:block">
-                {session.user?.name?.split(" ")[0]}
-              </span>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/account"
+                className="flex items-center gap-2 text-sm font-medium"
+              >
+                <User size={22} />
+                <span className="hidden md:block">
+                  {session.user?.name?.split(" ")[0]}
+                </span>
+              </Link>
+              <LogoutButton />
+            </div>
           ) : (
             <Link
               href="/login"
