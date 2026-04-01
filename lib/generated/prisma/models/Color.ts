@@ -144,7 +144,7 @@ export type ColorGroupByOutputType = {
   _max: ColorMaxAggregateOutputType | null
 }
 
-type GetColorGroupByPayload<T extends ColorGroupByArgs> = Prisma.PrismaPromise<
+export type GetColorGroupByPayload<T extends ColorGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ColorGroupByOutputType, T['by']> &
       {

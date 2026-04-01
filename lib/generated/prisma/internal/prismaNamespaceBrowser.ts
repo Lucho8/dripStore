@@ -94,6 +94,7 @@ export const UserScalarFieldEnum = {
   password: 'password',
   role: 'role',
   avatar: 'avatar',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -123,6 +124,7 @@ export const CategoryScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   imageUrl: 'imageUrl',
+  isActive: 'isActive',
   createdAt: 'createdAt'
 } as const
 
