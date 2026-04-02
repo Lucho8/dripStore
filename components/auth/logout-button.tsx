@@ -2,15 +2,19 @@
 
 import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button"; //
 
 export function LogoutButton() {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={() => signOut({ callbackUrl: "/" })}
-      className="text-muted-foreground hover:text-destructive transition flex items-center cursor-pointer"
+      style={{ cursor: "pointer" }}
+      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
       title="Cerrar sesión"
     >
       <LogOut size={20} />
-    </button>
+    </Button>
   );
 }
