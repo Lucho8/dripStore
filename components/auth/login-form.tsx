@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth.actions";
+import { SocialLogin } from "@/components/auth/social-login";
 
 const LoginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -31,7 +34,6 @@ export function LoginForm() {
     e.preventDefault();
     setServerError(null);
 
-    
     const parsed = LoginSchema.safeParse(values);
     if (!parsed.success) {
       const fieldErrors: Partial<LoginValues> = {};
@@ -60,6 +62,13 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md p-8 rounded-2xl border border-border bg-card shadow-sm">
       <div className="mb-8">
+        <Link
+          href="/"
+          className="mb-3 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Volver al inicio
+        </Link>
         <h1 className="text-2xl font-bold tracking-tight">
           Bienvenido de vuelta
         </h1>
@@ -119,6 +128,8 @@ export function LoginForm() {
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
       </form>
+
+      <SocialLogin />
 
       <p className="text-center text-sm text-muted-foreground mt-6">
         ¿No tenés cuenta?{" "}

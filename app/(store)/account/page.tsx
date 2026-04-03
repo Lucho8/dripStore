@@ -149,8 +149,9 @@ export default async function AccountPage() {
             </Link>
 
             {/* Configuración (Próximamente) */}
-            <div
-              className="bg-card"
+            <Link
+              href="/account/settings"
+              className="bg-card group"
               style={{
                 flex: "1 1 200px",
                 border: "1px solid #e5e5e5",
@@ -159,11 +160,12 @@ export default async function AccountPage() {
                 display: "flex",
                 flexDirection: "column",
                 gap: "16px",
-                opacity: 0.6,
-                cursor: "not-allowed",
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
               <div
+                className="group-hover:text-primary transition-colors"
                 style={{
                   width: "48px",
                   height: "48px",
@@ -178,26 +180,16 @@ export default async function AccountPage() {
               </div>
               <div>
                 <h3
-                  className="font-semibold text-lg flex items-center gap-2"
+                  className="font-semibold text-lg"
                   style={{ marginBottom: "4px" }}
                 >
                   Ajustes
-                  <span
-                    style={{
-                      fontSize: "10px",
-                      backgroundColor: "#e5e5e5",
-                      padding: "2px 8px",
-                      borderRadius: "9999px",
-                    }}
-                  >
-                    Próximamente
-                  </span>
                 </h3>
                 <p className="text-sm text-muted-foreground m-0">
-                  Cambia tu contraseña, direcciones y preferencias.
+                  Cambia tu contraseña y opciones.
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

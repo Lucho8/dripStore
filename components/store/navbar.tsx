@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { ShoppingBag, User } from "lucide-react";
+import { ShoppingBag, User, Heart } from "lucide-react";
 import { CartCount } from "@/components/store/cart-count";
 import { LogoutButton } from "@/components/auth/logout-button";
 
@@ -42,6 +42,15 @@ export async function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
+          {session && (
+            <Link
+              href="/account/wishlist"
+              className="text-muted-foreground hover:text-foreground transition relative flex items-center justify-center w-10 h-10 rounded-full"
+            >
+              <Heart size={22} />
+            </Link>
+          )}
+
           <CartCount />
 
           {session ? (
