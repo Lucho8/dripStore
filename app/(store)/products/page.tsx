@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/store/product-card";
 import Link from "next/link"; // Usaremos Link en lugar de <a> para navegar sin recargar toda la página
+import { auth } from "@/auth";
 
 interface ProductsPageProps {
   // 1. Agregamos la "q" a la promesa para leer el buscador
@@ -11,6 +12,7 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const { category, q } = await searchParams;
+  const session = await auth();
 
   // 2. Traemos las categorías reales de la base de datos
   const dbCategories = await db.category.findMany({
@@ -40,6 +42,13 @@ export default async function ProductsPage({
     include: {
       images: { where: { isPrimary: true } },
       category: true,
+      wishlist: session?.user?.id
+        ? {
+            where: {
+              userId: session.user.id,
+            },
+          }
+        : false,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -100,9 +109,18 @@ export default async function ProductsPage({
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product as any} />
-          ))}
+          {products.map((product) => {
+            const isFavorited = session?.user?.id
+              ? product.wishlist.length > 0
+              : false;
+            return (
+              <ProductCard
+                key={product.id}
+                product={product as any}
+                isFavorited={isFavorited}
+              />
+            );
+          })}
         </div>
       )}
     </div>
