@@ -26,8 +26,7 @@ export default async function WishlistPage() {
         },
       },
     },
-    // ELIMINADO EL orderBy QUE CAUSABA EL ERROR
-  });
+
 
   const products = wishlistItems.map((item) => item.product);
 
