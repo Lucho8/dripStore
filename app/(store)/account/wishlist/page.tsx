@@ -26,7 +26,7 @@ export default async function WishlistPage() {
         },
       },
     },
-
+  }); // <--- ¡AQUÍ ESTABA EL ERROR! Faltaba cerrar el findMany
 
   const products = wishlistItems.map((item) => item.product);
 
@@ -51,7 +51,7 @@ export default async function WishlistPage() {
             <ProductCard
               key={product.id}
               product={product as any}
-              isFavorited={true} // ¡Aquí simplemente le decimos que es true!
+              isFavorited={true}
             />
           ))}
         </div>
