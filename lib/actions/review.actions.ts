@@ -20,7 +20,6 @@ export async function createReview(
       return { error: "La calificación debe estar entre 1 y 5 estrellas." };
     }
 
-    // Verificar si el usuario ya dejó una reseña para este producto
     const existingReview = await db.review.findUnique({
       where: {
         userId_productId: {
@@ -43,9 +42,7 @@ export async function createReview(
       },
     });
 
-    // Revalidar las rutas para que se actualicen los promedios y reseñas mostradas
     revalidatePath("/products");
-    revalidatePath(`/products/[slug]`, "page");
 
     return { success: true };
   } catch (error) {

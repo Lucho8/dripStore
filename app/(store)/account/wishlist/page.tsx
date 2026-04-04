@@ -26,7 +26,7 @@ export default async function WishlistPage() {
         },
       },
     },
-  });
+
 
   const products = wishlistItems.map((item) => item.product);
 
