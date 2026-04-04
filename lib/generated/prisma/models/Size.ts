@@ -178,7 +178,7 @@ export type SizeGroupByOutputType = {
   _max: SizeMaxAggregateOutputType | null
 }
 
-type GetSizeGroupByPayload<T extends SizeGroupByArgs> = Prisma.PrismaPromise<
+export type GetSizeGroupByPayload<T extends SizeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SizeGroupByOutputType, T['by']> &
       {

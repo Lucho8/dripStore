@@ -4,9 +4,12 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { authConfig } from "@/auth.config";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
+  adapter: PrismaAdapter(db),
   providers: [
     Credentials({
       async authorize(credentials) {
@@ -34,6 +37,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         return user;
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
 });

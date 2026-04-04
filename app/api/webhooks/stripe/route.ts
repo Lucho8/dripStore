@@ -27,50 +27,28 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    const userId = session.metadata?.userId;
-    if (!userId)
-      return NextResponse.json({ error: "No userId" }, { status: 400 });
+    const orderId = session.metadata?.orderId;
 
-    // Obtener los items de la sesión de Stripe
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-
-    // Calcular el total
-    const total = (session.amount_total ?? 0) / 100;
-
-    const itemsMetadata = session.metadata?.items;
-    let items = [];
-    if (itemsMetadata) {
-      try {
-        items = JSON.parse(itemsMetadata);
-      } catch (e) {
-        console.error("Failed to parse items metadata", e);
-      }
+    if (!orderId) {
+      return NextResponse.json({ error: "No orderId in metadata" }, { status: 400 });
     }
 
     // Wrap operations in a transaction
     await db.$transaction(async (tx) => {
-      // Crear la orden en la DB
-      const order = await tx.order.create({
+      // 1. Update the existing order to PAID
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
         data: {
-          userId,
-          total,
-          stripePaymentId: session.payment_intent as string,
           status: "PAID",
+          stripePaymentId: session.payment_intent as string,
+        },
+        include: {
+          items: true,
         },
       });
 
-      // Crear OrderItems y descontar stock
-      for (const item of items) {
-        await tx.orderItem.create({
-          data: {
-            orderId: order.id,
-            variantId: item.variantId,
-            quantity: item.quantity,
-            priceAtPurchase: item.price,
-          },
-        });
-
-        // Bajar stock de la variante comprada
+      // 2. Decrement stock for all items
+      for (const item of updatedOrder.items) {
         await tx.productVariant.update({
           where: { id: item.variantId },
           data: { stock: { decrement: item.quantity } },

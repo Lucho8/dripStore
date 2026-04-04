@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { registerAction } from "@/lib/actions/auth.actions";
 
 const RegisterSchema = z.object({
@@ -59,6 +61,13 @@ export function RegisterForm() {
   return (
     <div className="w-full max-w-md p-8 rounded-2xl border border-border bg-card shadow-sm">
       <div className="mb-8">
+        <Link
+          href="/"
+          className="mb-3 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Volver al inicio
+        </Link>
         <h1 className="text-2xl font-bold tracking-tight">Crear cuenta</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Completá los datos para registrarte
