@@ -1,4 +1,4 @@
-import { Star, StarHalf } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface StarRatingProps {
   rating: number;
@@ -23,7 +23,7 @@ export function StarRating({
         ))}
         {hasHalfStar && (
           <div className="relative">
-            <Star size={size} color="#fbbf24" />
+            <Star size={size} color="#e5e7eb" />
             <div className="absolute top-0 left-0 overflow-hidden w-[50%]">
               <Star size={size} fill="#fbbf24" color="#fbbf24" />
             </div>

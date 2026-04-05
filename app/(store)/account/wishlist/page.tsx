@@ -26,13 +26,12 @@ export default async function WishlistPage() {
         },
       },
     },
-
+  });
 
   const products = wishlistItems.map((item) => item.product);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Mis Favoritos</h1>
         <p className="text-muted-foreground mt-1">

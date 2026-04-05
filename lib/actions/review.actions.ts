@@ -43,6 +43,7 @@ export async function createReview(
     });
 
     revalidatePath("/products");
+    revalidatePath(`/products/[slug]`, "page");
 
     return { success: true };
   } catch (error) {
