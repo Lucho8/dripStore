@@ -37,7 +37,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const primaryImage =
     product.images.find((img) => img.isPrimary) ?? product.images[0];
 
-  // Colores y talles únicos disponibles
   const colors = [
     ...new Map(product.variants.map((v) => [v.colorId, v.color])).values(),
   ];
@@ -50,7 +49,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
       product.reviews.length
     : 0;
 
-  // Verificamos si el usuario actual ya dejó una reseña para no mostrarle el formulario de nuevo
   const hasUserReviewed = session?.user?.id
     ? product.reviews.some((r) => r.userId === session.user.id)
     : false;
@@ -83,7 +81,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.name}
             </h1>
 
-            {/* AQUÍ METEMOS EL COMPONENTE DE ESTRELLAS */}
             <div className="mt-2">
               <StarRating
                 rating={avgRating}
@@ -120,12 +117,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      {/* SECCIÓN DE RESEÑAS */}
       <div className="mt-20 pt-10 border-t border-border">
         <h2 className="text-2xl font-bold mb-8">Reseñas de clientes</h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Lado izquierdo: Lista de reseñas */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             {product.reviews.length === 0 ? (
               <p className="text-muted-foreground italic">
@@ -164,7 +159,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* Lado derecho: Formulario para escribir una reseña */}
           <div>
             {session ? (
               hasUserReviewed ? (

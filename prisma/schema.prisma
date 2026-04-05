@@ -24,7 +24,7 @@ model User {
   password      String?
   role          Role      @default(USER)
   image         String?
-  isActive      Boolean   @default(true) 
+  isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -45,7 +45,7 @@ model Account {
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
-  token_type        String? 
+  token_type        String?
   scope             String?
   id_token          String? @db.Text
   session_state     String?

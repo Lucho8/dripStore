@@ -4,7 +4,6 @@ import Link from "next/link"; // Usaremos Link en lugar de <a> para navegar sin 
 import { auth } from "@/auth";
 
 interface ProductsPageProps {
-  // 1. Agregamos la "q" a la promesa para leer el buscador
   searchParams: Promise<{ category?: string; q?: string }>;
 }
 
@@ -14,22 +13,18 @@ export default async function ProductsPage({
   const { category, q } = await searchParams;
   const session = await auth();
 
-  // 2. Traemos las categorías reales de la base de datos
   const dbCategories = await db.category.findMany({
-    orderBy: { name: "asc" }, // Orden alfabético
+    orderBy: { name: "asc" },
   });
 
-  // 3. Armamos la lógica de búsqueda para Prisma
   const whereCondition: any = {
     isActive: true,
   };
 
-  // Si hay categoría, filtramos por categoría
   if (category) {
     whereCondition.category = { slug: category };
   }
 
-  // Si hay búsqueda de texto, filtramos por nombre o descripción
   if (q) {
     whereCondition.OR = [
       { name: { contains: q, mode: "insensitive" } },
@@ -55,11 +50,10 @@ export default async function ProductsPage({
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">
           {q
-            ? `Resultados para "${q}"` // Si buscó algo, mostramos qué buscó
+            ? `Resultados para "${q}"`
             : category
               ? category.charAt(0).toUpperCase() + category.slice(1)
               : "Todos los productos"}
@@ -69,9 +63,7 @@ export default async function ProductsPage({
         </p>
       </div>
 
-      {/* Filtros (Ahora usan datos reales de la BD) */}
       <div className="flex gap-2 mb-8 flex-wrap">
-        {/* Botón de "Todos" */}
         <Link
           href="/products"
           className={`px-4 py-1.5 rounded-full text-sm border transition
@@ -84,7 +76,6 @@ export default async function ProductsPage({
           Todos
         </Link>
 
-        {/* Botones dinámicos de la Base de Datos */}
         {dbCategories.map((cat) => (
           <Link
             key={cat.id}

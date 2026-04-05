@@ -33,9 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No orderId in metadata" }, { status: 400 });
     }
 
-    // Wrap operations in a transaction
     await db.$transaction(async (tx) => {
-      // 1. Update the existing order to PAID
       const updatedOrder = await tx.order.update({
         where: { id: orderId },
         data: {
@@ -47,7 +45,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // 2. Decrement stock for all items
       for (const item of updatedOrder.items) {
         await tx.productVariant.update({
           where: { id: item.variantId },

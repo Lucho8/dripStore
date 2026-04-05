@@ -3,36 +3,55 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
 import { createReview } from "@/lib/actions/review.actions";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export function ReviewForm({ productId }: { productId: string }) {
+interface ReviewFormProps {
+  productId: string;
+}
+
+export function ReviewForm({ productId }: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0) {
-      toast.error("Por favor, selecciona una calificación.");
-      return;
-    }
+    if (rating === 0) return;
 
     setLoading(true);
-    const result = await createReview(productId, rating, comment);
-    setLoading(false);
+    setError(null);
+    setSuccess(false);
 
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("¡Gracias por tu reseña!");
-      setRating(0);
-      setComment("");
-      router.refresh(); // Recarga los datos de la página para mostrar la reseña
+    try {
+      const result = await createReview(productId, rating, comment);
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess(true);
+        setRating(0);
+        setComment("");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Ocurrió un error inesperado al enviar tu reseña.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="p-6 bg-green-50 text-green-700 rounded-xl border border-green-200 mt-6">
+        <h3 className="font-semibold text-lg mb-2">¡Gracias por tu reseña!</h3>
+        <p>Tu opinión ha sido enviada exitosamente.</p>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -40,6 +59,12 @@ export function ReviewForm({ productId }: { productId: string }) {
       className="flex flex-col gap-4 mt-6 p-6 bg-neutral-50 rounded-xl border border-neutral-200"
     >
       <h3 className="font-semibold text-lg">Dejar una reseña</h3>
+
+      {error && (
+        <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">
+          {error}
+        </div>
+      )}
 
       {/* Selector interactivo de estrellas */}
       <div className="flex gap-1">
@@ -65,7 +90,7 @@ export function ReviewForm({ productId }: { productId: string }) {
         placeholder="¿Qué te pareció el producto? (Opcional)"
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        className="w-full p-3 rounded-lg border border-neutral-300 min-h-25 focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full p-3 rounded-lg border border-neutral-300 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary"
       />
 
       <button

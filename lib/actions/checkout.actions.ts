@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 
 interface CheckoutItem {
   name: string;
-  price: number; // The client price (we shouldn't trust this)
+  price: number;
   quantity: number;
   image: string;
   variantId: string;
@@ -20,14 +20,12 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
     redirect("/login");
   }
 
-  // 1. Fetch real prices from the database for security
   const variantIds = items.map((item) => item.variantId);
   const dbVariants = await db.productVariant.findMany({
     where: { id: { in: variantIds } },
     include: { product: true },
   });
 
-  // Map database variants for easy lookup
   const dbVariantsMap = new Map();
   dbVariants.forEach((v) => dbVariantsMap.set(v.id, v));
 
@@ -48,7 +46,6 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
     });
   }
 
-  // 2. Create the Order in PENDING status in the database first
   const order = await db.order.create({
     data: {
       userId: session.user.id,
@@ -64,7 +61,6 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
     },
   });
 
-  // 3. Prepare Stripe line items using verified prices
   const lineItems = validItems.map((item) => ({
     price_data: {
       currency: "usd",
@@ -77,7 +73,6 @@ export async function createCheckoutSession(items: CheckoutItem[]) {
     quantity: item.quantity,
   }));
 
-  // 4. Create Stripe Checkout Session, passing ONLY the orderId in metadata
   const checkoutSession = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: lineItems,
