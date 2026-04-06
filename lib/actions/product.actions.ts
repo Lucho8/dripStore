@@ -80,12 +80,10 @@ export async function updateProduct(data: {
   }[];
 }) {
   try {
-    // Borrar variantes existentes y recrearlas
     await db.productVariant.deleteMany({
       where: { productId: data.id },
     });
 
-    // Actualizar imagen principal
     await db.productImage.deleteMany({
       where: { productId: data.id },
     });
