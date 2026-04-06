@@ -3,6 +3,13 @@ import { ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/store/product-card";
 import { auth } from "@/auth";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default async function HomePage() {
   const session = await auth();
@@ -11,7 +18,6 @@ export default async function HomePage() {
   const featuredProducts = await db.product.findMany({
     where: {
       isActive: true,
-      // Se podría usar isFeatured: true, pero si no hay destacados, es mejor traer los últimos
     },
     include: {
       images: { where: { isPrimary: true } },
@@ -24,11 +30,8 @@ export default async function HomePage() {
           }
         : false,
     },
-    orderBy: [
-      { isFeatured: "desc" }, // Primero los destacados reales
-      { createdAt: "desc" },  // Luego los más recientes
-    ],
-    take: 4, // Mostrar solo 4 en la home
+    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+    take: 8, // ¡Aumentamos a 8 para que el carrusel tenga contenido!
   });
 
   return (
@@ -96,32 +99,57 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {featuredProducts.length > 0 ? (
-              featuredProducts.map((product) => {
-                const isFavorited = session?.user?.id
-                  ? product.wishlist.length > 0
-                  : false;
+          {/* AQUÍ COMIENZA EL CARRUSEL */}
+          <div className="relative">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true, // Hace que el carrusel sea infinito
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4 md:-ml-6">
+                {featuredProducts.length > 0
+                  ? featuredProducts.map((product) => {
+                      const isFavorited = session?.user?.id
+                        ? product.wishlist.length > 0
+                        : false;
 
-                return (
-                  <ProductCard
-                    key={product.id}
-                    product={product as any}
-                    isFavorited={isFavorited}
-                  />
-                );
-              })
-            ) : (
-              // Fallback skeleton if no products in DB
-              [1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex flex-col gap-3">
-                  <div className="aspect-3/4 rounded-2xl bg-neutral-200 animate-pulse" />
-                  <div className="h-4 bg-neutral-200 rounded animate-pulse w-3/4" />
-                  <div className="h-4 bg-neutral-200 rounded animate-pulse w-1/4" />
-                </div>
-              ))
-            )}
+                      return (
+                        // basis-1/2 en movil (2 items), basis-1/3 en tablet, basis-1/4 en compu
+                        <CarouselItem
+                          key={product.id}
+                          className="pl-4 md:pl-6 basis-1/2 md:basis-1/3 lg:basis-1/4"
+                        >
+                          <ProductCard
+                            product={product as any}
+                            isFavorited={isFavorited}
+                          />
+                        </CarouselItem>
+                      );
+                    })
+                  : // Fallback skeleton (Carga)
+                    [1, 2, 3, 4].map((i) => (
+                      <CarouselItem
+                        key={i}
+                        className="pl-4 md:pl-6 basis-1/2 md:basis-1/3 lg:basis-1/4"
+                      >
+                        <div className="flex flex-col gap-3 w-full">
+                          <div className="aspect-3/4 rounded-2xl bg-neutral-200 animate-pulse w-full" />
+                          <div className="h-4 bg-neutral-200 rounded animate-pulse w-3/4" />
+                          <div className="h-4 bg-neutral-200 rounded animate-pulse w-1/4" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+              </CarouselContent>
+              {/* Controles de flechas (se ocultan en mobile porque se puede deslizar con el dedo) */}
+              <div className="hidden md:block">
+                <CarouselPrevious className="-left-12" />
+                <CarouselNext className="-right-12" />
+              </div>
+            </Carousel>
           </div>
+          {/* FIN DEL CARRUSEL */}
         </div>
       </section>
 

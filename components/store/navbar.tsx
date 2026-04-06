@@ -4,6 +4,8 @@ import { ShoppingBag, User, Heart } from "lucide-react";
 import { CartCount } from "@/components/store/cart-count";
 import { LogoutButton } from "@/components/auth/logout-button";
 
+import { SearchBar } from "@/components/store/search-bar";
+
 export async function Navbar() {
   const session = await auth();
 
@@ -48,6 +50,8 @@ export async function Navbar() {
               Admin
             </Link>
           )}
+
+          <SearchBar />
         </nav>
 
         <div className="flex items-center gap-4">
