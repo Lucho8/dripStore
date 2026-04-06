@@ -1,75 +1,38 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function SearchBar() {
+  const [query, setQuery] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  // Si ya había una búsqueda en la URL, la cargamos como estado inicial
-  const defaultQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState(defaultQuery);
-
-  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Si el usuario borra todo y da Enter, lo mandamos a la tienda general
-    if (!query.trim()) {
+    if (query.trim()) {
+      router.push(`/products?q=${encodeURIComponent(query)}`);
+    } else {
       router.push("/products");
-      return;
     }
-
-    // Navegamos a la página de productos pasando la búsqueda como parámetro 'q'
-    router.push(`/products?q=${encodeURIComponent(query.trim())}`);
-  }
+  };
 
   return (
     <form
       onSubmit={handleSearch}
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "300px",
-        display: "flex",
-        alignItems: "center",
-      }}
+      className="hidden md:flex items-center relative mr-2"
     >
       <input
         type="text"
+        placeholder="Buscar..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Buscar productos..."
-        style={{
-          width: "100%",
-          padding: "8px 16px 8px 36px",
-          borderRadius: "9999px",
-          border: "1px solid #e5e5e5",
-          fontSize: "14px",
-          outline: "none",
-          backgroundColor: "#f5f5f5",
-        }}
-        onFocus={(e) => (e.target.style.backgroundColor = "#ffffff")}
-        onBlur={(e) => {
-          if (!query) e.target.style.backgroundColor = "#f5f5f5";
-        }}
+        className="w-48 px-4 py-1.5 pl-10 bg-neutral-100 rounded-full text-sm border-transparent focus:bg-white focus:border-border focus:ring-0 focus:outline-none transition-all"
       />
-      <button
-        type="submit"
-        style={{
-          position: "absolute",
-          left: "10px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          color: "#737373",
-        }}
-      >
-        <Search size={16} />
-      </button>
+      <Search
+        size={16}
+        className="absolute left-3.5 text-muted-foreground"
+      />
     </form>
   );
 }

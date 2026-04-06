@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { ShoppingBag, User, Heart } from "lucide-react";
 import { CartCount } from "@/components/store/cart-count";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { SearchBar } from "@/components/store/search-bar";
 
 export async function Navbar() {
   const session = await auth();
@@ -14,7 +15,7 @@ export async function Navbar() {
           DRIP STORE
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link
             href="/products"
             className="text-sm text-muted-foreground hover:text-foreground transition"
@@ -41,7 +42,9 @@ export async function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 lg:gap-4 ml-auto md:ml-0">
+          <SearchBar />
+
           {session && (
             <Link
               href="/account/wishlist"
