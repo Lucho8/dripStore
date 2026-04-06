@@ -1,7 +1,36 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { db } from "@/lib/db";
+import { ProductCard } from "@/components/store/product-card";
+import { auth } from "@/auth";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
+
+  // Buscar los productos destacados o los últimos creados
+  const featuredProducts = await db.product.findMany({
+    where: {
+      isActive: true,
+      // Se podría usar isFeatured: true, pero si no hay destacados, es mejor traer los últimos
+    },
+    include: {
+      images: { where: { isPrimary: true } },
+      category: true,
+      wishlist: session?.user?.id
+        ? {
+            where: {
+              userId: session.user.id,
+            },
+          }
+        : false,
+    },
+    orderBy: [
+      { isFeatured: "desc" }, // Primero los destacados reales
+      { createdAt: "desc" },  // Luego los más recientes
+    ],
+    take: 4, // Mostrar solo 4 en la home
+  });
+
   return (
     <div className="flex flex-col">
       <section className="relative bg-neutral-900 text-white">
@@ -66,14 +95,32 @@ export default function HomePage() {
               Ver todos <ArrowRight size={14} />
             </Link>
           </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <div className="aspect-3/4 rounded-2xl bg-neutral-200 animate-pulse" />
-                <div className="h-4 bg-neutral-200 rounded animate-pulse w-3/4" />
-                <div className="h-4 bg-neutral-200 rounded animate-pulse w-1/4" />
-              </div>
-            ))}
+            {featuredProducts.length > 0 ? (
+              featuredProducts.map((product) => {
+                const isFavorited = session?.user?.id
+                  ? product.wishlist.length > 0
+                  : false;
+
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={product as any}
+                    isFavorited={isFavorited}
+                  />
+                );
+              })
+            ) : (
+              // Fallback skeleton if no products in DB
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex flex-col gap-3">
+                  <div className="aspect-3/4 rounded-2xl bg-neutral-200 animate-pulse" />
+                  <div className="h-4 bg-neutral-200 rounded animate-pulse w-3/4" />
+                  <div className="h-4 bg-neutral-200 rounded animate-pulse w-1/4" />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
