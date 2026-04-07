@@ -27,24 +27,30 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    const userId = session.metadata?.userId;
-    if (!userId)
-      return NextResponse.json({ error: "No userId" }, { status: 400 });
+    const orderId = session.metadata?.orderId;
 
-    // Obtener los items de la sesión de Stripe
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+    if (!orderId) {
+      return NextResponse.json({ error: "No orderId in metadata" }, { status: 400 });
+    }
 
-    // Calcular el total
-    const total = (session.amount_total ?? 0) / 100;
+    await db.$transaction(async (tx) => {
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: "PAID",
+          stripePaymentId: session.payment_intent as string,
+        },
+        include: {
+          items: true,
+        },
+      });
 
-    // Crear la orden en la DB
-    await db.order.create({
-      data: {
-        userId,
-        total,
-        stripePaymentId: session.payment_intent as string,
-        status: "PAID",
-      },
+      for (const item of updatedOrder.items) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
     });
   }
 
