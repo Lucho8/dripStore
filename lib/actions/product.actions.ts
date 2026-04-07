@@ -80,29 +80,35 @@ export async function updateProduct(data: {
   }[];
 }) {
   try {
+    
+    const variantSet = new Set();
+    for (const v of data.variants) {
+      const key = `${v.colorId}-${v.sizeId}`;
+      if (variantSet.has(key)) {
+        return { error: "No puedes tener dos variantes con el mismo Color y Talle." };
+      }
+      variantSet.add(key);
+    }
+
+    
     const existingVariants = await db.productVariant.findMany({
       where: { productId: data.id },
       select: { id: true },
     });
+    
+    const existingVariantIds = existingVariants.map(v => v.id);
+    const incomingVariantIds = data.variants.map(v => v.id).filter(Boolean) as string[];
 
-    const existingVariantIds = existingVariants.map((v) => v.id);
-    const incomingVariantIds = data.variants
-      .map((v) => v.id)
-      .filter(Boolean) as string[];
+    
+    const variantsToDelete = existingVariantIds.filter(id => !incomingVariantIds.includes(id));
 
-    const variantsToDelete = existingVariantIds.filter(
-      (id) => !incomingVariantIds.includes(id),
-    );
-
+  
     for (const idToDelete of variantsToDelete) {
       try {
         await db.productVariant.delete({ where: { id: idToDelete } });
       } catch (err: any) {
-        // Si falla por Foreign Key Constraint, simplemente le ponemos stock 0 para "desactivarla"
         if (err.code === "P2003") {
-          console.warn(
-            `[UPDATE_PRODUCT] No se pudo borrar variante ${idToDelete} porque tiene dependencias. Fijando stock a 0.`,
-          );
+          console.warn(`[UPDATE_PRODUCT] No se pudo borrar variante ${idToDelete} porque tiene dependencias. Fijando stock a 0.`);
           await db.productVariant.update({
             where: { id: idToDelete },
             data: { stock: 0 },
@@ -113,14 +119,15 @@ export async function updateProduct(data: {
       }
     }
 
+  
     const existingImages = await db.productImage.findMany({
-      where: { productId: data.id, isPrimary: true },
+      where: { productId: data.id, isPrimary: true }
     });
 
     if (existingImages.length > 0) {
       await db.productImage.update({
         where: { id: existingImages[0].id },
-        data: { url: data.imageUrl },
+        data: { url: data.imageUrl }
       });
     } else {
       await db.productImage.create({
@@ -128,12 +135,12 @@ export async function updateProduct(data: {
           productId: data.id,
           url: data.imageUrl,
           isPrimary: true,
-          order: 0,
-        },
+          order: 0
+        }
       });
     }
 
-    // 5. Actualizar el producto base
+    
     await db.product.update({
       where: { id: data.id },
       data: {
@@ -146,10 +153,9 @@ export async function updateProduct(data: {
       },
     });
 
-    // 6. Actualizar (Upsert) cada variante entrante
+    
     for (const variant of data.variants) {
       if (variant.id) {
-        // Existe, la actualizamos
         await db.productVariant.update({
           where: { id: variant.id },
           data: {
@@ -157,10 +163,9 @@ export async function updateProduct(data: {
             sizeId: variant.sizeId,
             stock: variant.stock,
             price: variant.price ? parseFloat(variant.price) : null,
-          },
+          }
         });
       } else {
-        // No existe, la creamos
         await db.productVariant.create({
           data: {
             productId: data.id,
@@ -168,14 +173,20 @@ export async function updateProduct(data: {
             sizeId: variant.sizeId,
             stock: variant.stock,
             price: variant.price ? parseFloat(variant.price) : null,
-          },
+          }
         });
       }
     }
 
     return { success: true };
-  } catch (error) {
-    console.error("[UPDATE_PRODUCT_ERROR]", error); // <-- Fundamental para ver el error en los logs de Vercel
+  } catch (error: any) {
+    console.error("[UPDATE_PRODUCT_ERROR]", error);
+    
+    
+    if (error.code === 'P2002') {
+      return { error: "Ya existe una variante con esa combinación exacta de Color y Talle." };
+    }
+
     return { error: "Error al actualizar el producto" };
   }
 }
