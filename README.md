@@ -52,3 +52,8 @@ Antes de clonar el proyecto, asegurate de tener instalado:
 * Una base de datos PostgreSQL activa
 
 ---
+
+Guia acelerada del proyecto!
+
+<video src="https://github.com/user-attachments/assets/981a3881-e2a0-4bbf-82db-536467cda83d" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px">
+</video>
