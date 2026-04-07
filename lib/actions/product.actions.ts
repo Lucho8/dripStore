@@ -80,14 +80,60 @@ export async function updateProduct(data: {
   }[];
 }) {
   try {
-    await db.productVariant.deleteMany({
+    const existingVariants = await db.productVariant.findMany({
       where: { productId: data.id },
+      select: { id: true },
     });
 
-    await db.productImage.deleteMany({
-      where: { productId: data.id },
+    const existingVariantIds = existingVariants.map((v) => v.id);
+    const incomingVariantIds = data.variants
+      .map((v) => v.id)
+      .filter(Boolean) as string[];
+
+    const variantsToDelete = existingVariantIds.filter(
+      (id) => !incomingVariantIds.includes(id),
+    );
+
+    for (const idToDelete of variantsToDelete) {
+      try {
+        await db.productVariant.delete({ where: { id: idToDelete } });
+      } catch (err: any) {
+        // Si falla por Foreign Key Constraint, simplemente le ponemos stock 0 para "desactivarla"
+        if (err.code === "P2003") {
+          console.warn(
+            `[UPDATE_PRODUCT] No se pudo borrar variante ${idToDelete} porque tiene dependencias. Fijando stock a 0.`,
+          );
+          await db.productVariant.update({
+            where: { id: idToDelete },
+            data: { stock: 0 },
+          });
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    const existingImages = await db.productImage.findMany({
+      where: { productId: data.id, isPrimary: true },
     });
 
+    if (existingImages.length > 0) {
+      await db.productImage.update({
+        where: { id: existingImages[0].id },
+        data: { url: data.imageUrl },
+      });
+    } else {
+      await db.productImage.create({
+        data: {
+          productId: data.id,
+          url: data.imageUrl,
+          isPrimary: true,
+          order: 0,
+        },
+      });
+    }
+
+    // 5. Actualizar el producto base
     await db.product.update({
       where: { id: data.id },
       data: {
@@ -97,26 +143,39 @@ export async function updateProduct(data: {
         categoryId: data.categoryId,
         isFeatured: data.isFeatured,
         isActive: data.isActive,
-        images: {
-          create: {
-            url: data.imageUrl,
-            isPrimary: true,
-            order: 0,
-          },
-        },
-        variants: {
-          create: data.variants.map((v) => ({
-            colorId: v.colorId,
-            sizeId: v.sizeId,
-            stock: v.stock,
-            price: v.price ? parseFloat(v.price) : null,
-          })),
-        },
       },
     });
 
+    // 6. Actualizar (Upsert) cada variante entrante
+    for (const variant of data.variants) {
+      if (variant.id) {
+        // Existe, la actualizamos
+        await db.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            colorId: variant.colorId,
+            sizeId: variant.sizeId,
+            stock: variant.stock,
+            price: variant.price ? parseFloat(variant.price) : null,
+          },
+        });
+      } else {
+        // No existe, la creamos
+        await db.productVariant.create({
+          data: {
+            productId: data.id,
+            colorId: variant.colorId,
+            sizeId: variant.sizeId,
+            stock: variant.stock,
+            price: variant.price ? parseFloat(variant.price) : null,
+          },
+        });
+      }
+    }
+
     return { success: true };
   } catch (error) {
+    console.error("[UPDATE_PRODUCT_ERROR]", error); // <-- Fundamental para ver el error en los logs de Vercel
     return { error: "Error al actualizar el producto" };
   }
 }
