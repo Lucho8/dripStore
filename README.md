@@ -35,6 +35,14 @@ El proyecto incluye tanto la vista orientada al cliente (Storefront) como un com
 * **Gráficos:** Recharts
 
 ---
+🛡️ Seguridad de Arquitectura
+Este proyecto fue construido priorizando la seguridad y la integridad de los datos:
+
+Precios Validados en Servidor: Al realizar un pago, el frontend solo envía los IDs de los productos. El precio total se recalcula consultando a PostgreSQL mediante Prisma antes de crear la sesión de Stripe.
+
+Transacciones ACID: El Webhook de Stripe utiliza transacciones de base de datos ($transaction) para asegurar que el pago y la deducción de inventario ocurran de forma simultánea, previniendo inconsistencias si algo falla.
+
+Soft Deletes: Implementación de borrado lógico en modelos clave (como Productos y Categorías) para mantener intacto el historial de órdenes antiguas.
 
 ## 🚀 Requisitos Previos
 
