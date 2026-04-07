@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { ShoppingBag, User } from "lucide-react";
+import { ShoppingBag, User, Heart } from "lucide-react";
 import { CartCount } from "@/components/store/cart-count";
+import { LogoutButton } from "@/components/auth/logout-button";
+
+import { SearchBar } from "@/components/store/search-bar";
 
 export async function Navbar() {
   const session = await auth();
@@ -38,21 +41,44 @@ export async function Navbar() {
           >
             Accesorios
           </Link>
+
+          {session?.user.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className="text-sm text-muted-foreground hover:text-foreground transition"
+            >
+              Admin
+            </Link>
+          )}
+
+          <SearchBar />
         </nav>
 
         <div className="flex items-center gap-4">
+          {session && (
+            <Link
+              href="/account/wishlist"
+              className="text-muted-foreground hover:text-foreground transition relative flex items-center justify-center w-10 h-10 rounded-full"
+            >
+              <Heart size={22} />
+            </Link>
+          )}
+
           <CartCount />
 
           {session ? (
-            <Link
-              href="/account"
-              className="flex items-center gap-2 text-sm font-medium"
-            >
-              <User size={22} />
-              <span className="hidden md:block">
-                {session.user?.name?.split(" ")[0]}
-              </span>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/account"
+                className="flex items-center gap-2 text-sm font-medium"
+              >
+                <User size={22} />
+                <span className="hidden md:block">
+                  {session.user?.name?.split(" ")[0]}
+                </span>
+              </Link>
+              <LogoutButton />
+            </div>
           ) : (
             <Link
               href="/login"

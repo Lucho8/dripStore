@@ -32,7 +32,6 @@ export const useCartStore = create<CartStore>()(
         const existing = items.find((i) => i.variantId === item.variantId);
 
         if (existing) {
-          // Si ya existe la variante, solo suma la cantidad
           set({
             items: items.map((i) =>
               i.variantId === item.variantId
@@ -70,7 +69,7 @@ export const useCartStore = create<CartStore>()(
         get().items.reduce((acc, i) => acc + i.price * i.quantity, 0),
     }),
     {
-      name: "drip-cart", // nombre en localStorage
+      name: "drip-cart",
     },
   ),
 );

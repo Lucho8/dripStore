@@ -19,6 +19,7 @@ export default function CartPage() {
         price: item.price,
         quantity: item.quantity,
         image: item.image,
+        variantId: item.variantId,
       })),
     );
     setLoadingCheckout(false);

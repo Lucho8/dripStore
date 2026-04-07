@@ -214,7 +214,7 @@ export type CouponGroupByOutputType = {
   _max: CouponMaxAggregateOutputType | null
 }
 
-type GetCouponGroupByPayload<T extends CouponGroupByArgs> = Prisma.PrismaPromise<
+export type GetCouponGroupByPayload<T extends CouponGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CouponGroupByOutputType, T['by']> &
       {
