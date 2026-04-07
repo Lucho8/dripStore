@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💧 DripStore - Fullstack E-Commerce Platform
 
-## Getting Started
+Una plataforma de comercio electrónico robusta, escalable y moderna construida con **Next.js 15**, enfocada en el rendimiento, la seguridad de los datos y una excelente experiencia de usuario. 
 
-First, run the development server:
+El proyecto incluye tanto la vista orientada al cliente (Storefront) como un completo Panel de Administración (Admin Dashboard) para gestionar todo el negocio.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Características Principales
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🛍️ Storefront (Para Clientes)
+* **Catálogo Dinámico:** Navegación por productos con filtrado por categorías, colores y talles.
+* **Carrito de Compras y Checkout:** Flujo de compra optimizado y seguro utilizando **Stripe**. Los precios se validan estrictamente en el servidor (backend) para evitar manipulaciones.
+* **Lista de Deseos (Wishlist):** Sistema persistente para guardar productos favoritos.
+* **Reseñas y Calificaciones:** Los usuarios pueden dejar feedback (1 a 5 estrellas) en los productos que compraron.
+* **Autenticación Segura:** Login tradicional con credenciales y Social Login (Google) a través de **Auth.js**.
+* **Panel de Usuario:** Historial de órdenes y gestión de la cuenta.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📊 Admin Dashboard (Para Administradores)
+* **Gestión de Inventario (CRUD):** Creación y edición de productos, categorías, colores y talles.
+* **Gestión de Órdenes:** Seguimiento y actualización del estado de las compras en tiempo real.
+* **Analíticas de Ventas:** Visualización de ingresos de los últimos 30 días mediante gráficos interactivos (`recharts`).
+* **Protección de Rutas:** Acceso restringido exclusivamente a usuarios con rol de Administrador.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Stack Tecnológico
 
-To learn more about Next.js, take a look at the following resources:
+* **Framework:** Next.js 15 (App Router, Server Components, Server Actions)
+* **Lenguaje:** TypeScript
+* **Estilos:** Tailwind CSS v4, Lucide Icons
+* **Base de Datos:** PostgreSQL
+* **ORM:** Prisma
+* **Autenticación:** Auth.js (NextAuth)
+* **Pagos:** Stripe (Checkout Sessions & Webhooks para manejo de stock)
+* **Almacenamiento de Imágenes:** Cloudinary
+* **Gráficos:** Recharts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
+🛡️ Seguridad de Arquitectura
+Este proyecto fue construido priorizando la seguridad y la integridad de los datos:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Precios Validados en Servidor: Al realizar un pago, el frontend solo envía los IDs de los productos. El precio total se recalcula consultando a PostgreSQL mediante Prisma antes de crear la sesión de Stripe.
 
-## Deploy on Vercel
+Transacciones ACID: El Webhook de Stripe utiliza transacciones de base de datos ($transaction) para asegurar que el pago y la deducción de inventario ocurran de forma simultánea, previniendo inconsistencias si algo falla.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Soft Deletes: Implementación de borrado lógico en modelos clave (como Productos y Categorías) para mantener intacto el historial de órdenes antiguas.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Requisitos Previos
+
+Antes de clonar el proyecto, asegurate de tener instalado:
+* Node.js (v18 o superior)
+* pnpm (recomendado, el proyecto usa `pnpm-workspace`) o npm
+* Una base de datos PostgreSQL activa
+
+---
